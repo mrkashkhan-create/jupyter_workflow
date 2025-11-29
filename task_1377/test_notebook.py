@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend for testing
 
-notebook_file='initial_notebook.ipynb'
+notebook_file='final_notebook.ipynb'
 
 @pytest.mark.parametrize("notebook_file", [notebook_file])
 def test_notebook_exec(notebook_file):
@@ -166,6 +166,39 @@ def test_model_structure_and_forwards():
     assert outputs.ndim == 2, "Model outputs should be 2D tensors."
     assert outputs.shape[1] == num_classes, f"Model outputs should have shape = to num_classes ({num_classes})."
 
-# # training functions
-# def test_train_function_sig():
+# training functions
+def test_train_function_sig():
+    """check train function exists and has correct parameters"""
+    _check_variable_existence_and_type('train', FunctionType,'function',namespace)
 
+    sig=inspect.signature(namespace['train'])
+    params=list(sig.parameters.keys())
+    expected=['model', 'loader', 'criterion', 'optimiser', 'epoch']
+    assert params==expected, f"'train' function should have parameters {expected}, but has {params}."    
+
+
+def test_evaluate_function_sig():
+    """check evaluate function exists and has correct parameters"""
+    _check_variable_existence_and_type('evaluate', FunctionType,'function',namespace)
+
+    sig=inspect.signature(namespace['evaluate'])
+    params=list(sig.parameters.keys())
+    expected=['model', 'loader']
+    assert params==expected, f"'evaluate' function should have parameters {expected}, but has {params}."
+
+def test_train_eval_functions_run():
+    """check train and evaluate functions run without errors for one epoch"""
+    
+    _check_variable_existence_and_type('train_eval', FunctionType,'function',namespace)
+    sig=inspect.signature(namespace['train_eval'])
+    assert "epochs" in sig.parameters.keys(), "'train_eval' function should have 'epochs' parameter."
+
+    # run for 1 epoch
+    train_eval=namespace['train_eval']
+    try:
+        result = train_eval()
+    except TypeError:
+        result = train_eval(1)
+
+    # allow tuple,list or None
+    assert result is None or isinstance(result, (tuple, list)), "'train_eval' should return None or a tuple/list."
