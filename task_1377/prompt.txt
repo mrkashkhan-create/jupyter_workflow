@@ -1,0 +1,23 @@
+Complete the following steps to build an end–to-end pytorch classifier model to classify propertyType from a dataset containing one row per property with features like bedrooms, bathrooms and historical price.
+
+complete feature engineering, creating a file named df_model. The features should consist of the following basic numeric features which are already in the dataset:
+'bedrooms','livingRooms','bathrooms','floorAreaSqM','latitude','longitude'. You should also create three additional features. 
+1. rooms which is equal to 'bedrooms' + 'livingRooms'
+2. 'log_price' which is the log of history_price
+3. 'propertyType' is categorical, we need to convert this into numberical
+
+You should then create a feature set for classification named feature_cols_cls. It should consist of the following classification features: 
+'rooms','bathrooms','floorAreaSqM','latitude','longitude','log_price'
+
+Then create a stratified train-test split named X_train_scaled,X_val_scaled,X_test_scaled and utilising standardScalar for scaling. ensure you use a test size of 0.3 and and random state as SEED (which is already a variable)
+
+implement a pytorch dataset class named PropertyDataset and a set of dataloaders (train_loader, val_loader and test_loader) to train with a batch_size of 64.
+
+Then build a MLP classifier named ProperyTypeClassifier using nn.Module. it should have 128 hidden layers, 4 classes and a forward function. Function selection is upto you,but you should ensure feature output is consistant with what is typically expected
+
+Create a function named train that takes model, loader, criterion, optimiser, epoch as arguments.
+
+create an evaluation function named evaluate with arguments model and loader. Also a function named train_eval that can be used to calculate the variables train_losses, val_losses, val_accuracies
+
+
+
