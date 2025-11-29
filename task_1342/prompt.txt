@@ -1,0 +1,41 @@
+I am building an ML model to predict London house prices using a kaggle dataset which includes several features and prices.
+dataset is one row per property with features like bedrooms, bathrooms and historical price
+So far, in the notebook I have 
+- loaded the dataset from a csv
+- carrier out initial exploratory analysis and cleaned the dataset
+- filter out potential outliers
+- modelling dataframe is df_model
+- engineered several new feature e.g 'log_price', 'rooms' and encoded the propertyType categorical feature
+
+Your goal is to build an end-to-end pytorch regression model that predicst log_price from x. The features have been decided ('feature_cols' in the notebook) and the target should be 'log_price'
+
+I need you to carry out the following tasks ensuring you stick to the requirements and naming conventions of functions:
+
+- create a scaled train/validate/test split that uses scaling, with StandardScalar. The resulting objects should be "X_train_scaled", "X_val_scaled", "X_test_scaled", "y_train", "y_val", "y_test" and we should use a 70-15-15 split strategy.
+- create a class named HousePriceDataset(Dataset) and use it with Dataloader and a variable BATCH_SIZE to create 'train_loader','val_loader','test_loader' variables that allow batch loading
+- Create a class named PricePredictorNN using torch.nn to specify the model 
+- Create training and evaluation function that implements MAE and MSE losses with the following arguments:
+    train_epoch(model,dataloader,optimiser,mse_loss_fn,mae_loss_fn,device)
+    eval_model(model,dataloader,mse_loss_fn,mae_loss_fn,device)
+6. Create a training loop that trains for N epochs
+
+This notebook should run without errors and include the following variables and functions (as described above) with these exact naming conventions:
+df_model, X, y, X_train_scaled, X_val_scaled, X_test_scaled, y_train, y_val, y_test, HousePriceDataset, train_loader, test_loader,
+BATCH_SIZE, model, mse_loss_fn, mae_loss_fn, optimiser, train_epoch, eval_model and device
+
+
+
+Build an end-to-end pytorch regression model that predicts log_price from x. The features have been decided ('feature_cols') and the target should be 'log_price'. You need to complete the following tasks to achieve this, ensuring you stick to the requirements and naming conventions of functions:
+- create a scaled train/validate/test split that uses scaling, with StandardScalar. The resulting objects should be "X_train_scaled", "X_val_scaled", "X_test_scaled", "y_train", "y_val", "y_test" and we should use a 70-15-15 split strategy.
+- create a class named HousePriceDataset(Dataset) and use it with Dataloader and a variable BATCH_SIZE to create 'train_loader','val_loader','test_loader' variables that allow batch loading
+- Create a class named PricePredictorNN using torch.nn to specify the model 
+- Create training and evaluation function that implements MAE and MSE losses with the following arguments:
+  train_epoch(model,dataloader,optimiser,mse_loss_fn,mae_loss_fn,device)
+  eval_model(model,dataloader,mse_loss_fn,mae_loss_fn,device)
+- Create a training loop that trains for N epochs
+
+This notebook should run without errors and include the following variables and functions (as described above) with these exact naming conventions:
+df_model, X, y, X_train_scaled, X_val_scaled, X_test_scaled, y_train, y_val, y_test, HousePriceDataset, train_loader, test_loader,
+BATCH_SIZE, model, mse_loss_fn, mae_loss_fn, optimiser, train_epoch, eval_model and device.
+
+So far,  I have loaded the dataset from a csv, completed initial exploratory analysis, cleaned the dataset and removed outliers. I have also engineered several new features e.g 'log_price', 'rooms' and encoded the propertyType categorical feature. The dataframe is named 'df_model'. Random seed has been set.

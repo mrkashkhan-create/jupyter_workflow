@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend for testing
 
-notebook_file='final_notebook.ipynb'
+notebook_file='initial_notebook.ipynb'
 
 
 @pytest.mark.parametrize("notebook_file", [notebook_file])
