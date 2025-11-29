@@ -1,0 +1,580 @@
+Initial LLM Prompt
+I am stuck after running the code for the Oxford-17 dataset that has 17 classes for flowers:
+```python
+for key in list(data.keys())[3:]:
+    print(f"{key}: shape = {data[key].shape}, dtype = {data[key].dtype}")
+```
+
+Where I get what seems to represent the idx of each split:
+```
+trn1: shape = (1, 680), dtype = uint16
+trn2: shape = (1, 680), dtype = uint16
+trn3: shape = (1, 680), dtype = uint16
+tst1: shape = (1, 340), dtype = uint16
+tst2: shape = (1, 340), dtype = uint16
+tst3: shape = (1, 340), dtype = uint16
+val3: shape = (1, 340), dtype = uint16
+val2: shape = (1, 340), dtype = uint16
+val1: shape = (1, 340), dtype = uint16
+```
+
+I need your help to complete this deep learning pipeline via PyTorch. Here is what I need in more detail:
+- I will need to use the 3 splits that end with 1 by having a list for each split with the paths of the images that belong to that split. Assign the lists to variables called `train_files`, `val_files`, and `test_files`.
+- I will need a function that takes the path of the image and returns its class as an integer. Each 80 consecutive images belong to the same class (so images 1 to 80 are in class 1, 81 to 160 in class 2, and so on). You can call the function `get_class_id`
+- I want you to normalize the images as well to be 224 x 224 pixels and with pixel values between 0 and 1 before building the model. Once normalized, create 3 PyTorch DataLoaders for the train, validation, and test splits and name them `train_loader`, `val_loader`, and `test_loader`. The `batch_size` can be a variable with the same name so that I can easily change its value.
+- For the model architecture, I will need 2-3 convolutional layers before the fully connected layer. Assign the model to a variable called model. For the layers, get them directly from `torch.nn`.
+- Once done, I will need you to create a function called `train` that performs the training for a single epoch. It should take 5 parameters named `model`, `loader`, `optimizer`, `criterion`, `epoch`. I believe the parameters are obvious, but to be clear, the loader will be the DataLoader and the `epoch` will be the epoch id and not the number of epochs. The function should return the average loss of that epoch.
+- I will need another function called `evaluate` that takes 2 parameters, `model` and `loader` to use it with the validation and test sets. The function should return the average loss on the data as well as the accuracy as a %.
+- Finally, I will need you to write a function called `train_eval` that will make use of the `train` and `evaluate` functions. The function must have an `epochs` parameter that will represent the total number of epochs that I will use to train the model. This function should calculate and print the validation loss and accuracy after each epoch.
+
+Task Category
+Machine Learning
+Task Complexity
+Complex
+Link to the ipynb files on the drive
+The files on the drive may have slightly different names than the ones you would deliver. Check the files for their format and content and ignore the files’ names.
+Initial Notebook
+# In[1]:
+
+
+import os
+import tarfile
+import urllib.request
+from PIL import Image
+import matplotlib.pyplot as plt
+
+
+# In[2]:
+
+
+# Directory to store the dataset
+data_dir = "./oxford17"
+os.makedirs(data_dir, exist_ok=True)
+
+# Download the images archive
+img_url = "https://www.robots.ox.ac.uk/~vgg/data/flowers/17/17flowers.tgz"
+tgz_path = os.path.join(data_dir, "17flowers.tgz")
+
+if not os.path.exists(tgz_path):
+    print("Downloading dataset...")
+    urllib.request.urlretrieve(img_url, tgz_path)
+    print("Download complete.")
+
+
+# In[3]:
+
+
+# Extract the images
+print("Extracting images...")
+with tarfile.open(tgz_path, "r:gz") as tar:
+    tar.extractall(path=data_dir)
+print("Extraction complete.")
+
+
+# In[4]:
+
+
+# Check how the images are split
+print(os.listdir(os.path.join(data_dir, "jpg"))[:20])
+
+
+# In[5]:
+
+
+# Load one image
+img_path = "./oxford17/jpg/image_0001.jpg"
+img = Image.open(img_path)
+
+# Plot the image
+plt.imshow(img)
+plt.axis("off")
+plt.show()
+
+
+# In[6]:
+
+
+mat_url = "https://www.robots.ox.ac.uk/~vgg/data/flowers/17/datasplits.mat"
+save_path = os.path.join(data_dir, "datasplits.mat")
+
+# Download the file
+if not os.path.exists(save_path):
+    print("Downloading Oxford 17 Flowers split file...")
+    urllib.request.urlretrieve(mat_url, save_path)
+    print(f"Download complete: {save_path}")
+else:
+    print(f"File already exists: {save_path}")
+
+
+# In[7]:
+
+
+import scipy.io
+
+# Path to the file
+mat_path = "./oxford17/datasplits.mat"
+
+# Load it
+data = scipy.io.loadmat(mat_path)
+
+# See what keys exist
+print("Keys in file:", data.keys())
+
+
+# In[8]:
+
+
+list(data.keys())[3:]
+
+
+# In[9]:
+
+
+for key in list(data.keys())[3:]:
+    print(f"{key}: shape = {data[key].shape}, dtype = {data[key].dtype}")
+Golden Solution Notebook
+# In[1]:
+
+
+import os
+import tarfile
+import urllib.request
+from PIL import Image
+import matplotlib.pyplot as plt
+
+
+# In[2]:
+
+
+# Directory to store the dataset
+data_dir = "./oxford17"
+os.makedirs(data_dir, exist_ok=True)
+
+# Download the images archive
+img_url = "https://www.robots.ox.ac.uk/~vgg/data/flowers/17/17flowers.tgz"
+tgz_path = os.path.join(data_dir, "17flowers.tgz")
+
+if not os.path.exists(tgz_path):
+    print("Downloading dataset...")
+    urllib.request.urlretrieve(img_url, tgz_path)
+    print("Download complete.")
+
+
+# In[3]:
+
+
+# Extract the images
+print("Extracting images...")
+with tarfile.open(tgz_path, "r:gz") as tar:
+    tar.extractall(path=data_dir)
+print("Extraction complete.")
+
+
+# In[4]:
+
+
+# Check how the images are split
+print(os.listdir(os.path.join(data_dir, "jpg"))[:20])
+
+
+# In[5]:
+
+
+# Load one image
+img_path = "./oxford17/jpg/image_0001.jpg"
+img = Image.open(img_path)
+
+# Plot the image
+plt.imshow(img)
+plt.axis("off")
+plt.show()
+
+
+# In[6]:
+
+
+mat_url = "https://www.robots.ox.ac.uk/~vgg/data/flowers/17/datasplits.mat"
+save_path = os.path.join(data_dir, "datasplits.mat")
+
+# Download the file
+if not os.path.exists(save_path):
+    print("Downloading Oxford 17 Flowers split file...")
+    urllib.request.urlretrieve(mat_url, save_path)
+    print(f"Download complete: {save_path}")
+else:
+    print(f"File already exists: {save_path}")
+
+
+# In[7]:
+
+
+import scipy.io
+
+# Path to the file
+mat_path = "./oxford17/datasplits.mat"
+
+# Load it
+data = scipy.io.loadmat(mat_path)
+
+# See what keys exist
+print("Keys in file:", data.keys())
+
+
+# In[8]:
+
+
+list(data.keys())[3:]
+
+
+# In[9]:
+
+
+for key in list(data.keys())[3:]:
+    print(f"{key}: shape = {data[key].shape}, dtype = {data[key].dtype}")
+
+
+# In[ ]:
+
+
+# Getting the indices for each of the 3 datasets
+train_idx = data["trn1"].flatten()
+val_idx   = data["val1"].flatten()
+test_idx  = data["tst1"].flatten()
+
+print(f"Train: {len(train_idx)}, Val: {len(val_idx)}, Test: {len(test_idx)}")
+
+
+# In[ ]:
+
+
+# Creatings lists for each split
+def idx_to_filename(idx):
+    return os.path.join(data_dir, "jpg", f"image_{idx:04d}.jpg")
+
+train_files = [idx_to_filename(i) for i in train_idx]
+val_files   = [idx_to_filename(i) for i in val_idx]
+test_files  = [idx_to_filename(i) for i in test_idx]
+
+
+# In[ ]:
+
+
+from pathlib import Path
+from torch.utils.data import Dataset, DataLoader
+from torchvision import transforms
+from PIL import Image
+
+# Create a helper function to extract the class id from the image name
+def get_class_id(image_path):
+    """Compute class ID (1–17) from filename like image_0001.jpg"""
+    idx = int(Path(image_path).stem.split("_")[1])
+    class_id = (idx - 1) // 80 + 1
+    return class_id
+
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor()  # scales pixel values automatically to [0,1]
+])
+
+class Oxford17Dataset(Dataset):
+    def __init__(self, file_list, transform=None):
+        self.file_list = file_list
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.file_list)
+
+    def __getitem__(self, idx):
+        img_path = self.file_list[idx]
+        img = Image.open(img_path).convert("RGB")
+
+        if self.transform:
+            img = self.transform(img)
+
+        class_id = get_class_id(img_path)
+        label = class_id - 1  # shift to 0-based for PyTorch loss functions
+        return img, label
+
+# Create the dataset instances
+train_ds = Oxford17Dataset(train_files, transform)
+val_ds   = Oxford17Dataset(val_files, transform)
+test_ds  = Oxford17Dataset(test_files, transform)
+
+# Create the data loaders
+batch_size = 32
+train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
+val_loader   = DataLoader(val_ds, batch_size=batch_size, shuffle=False)
+test_loader  = DataLoader(test_ds, batch_size=batch_size, shuffle=False)
+
+print(f"Train batches: {len(train_loader)}")
+print(f"Val batches: {len(val_loader)}")
+print(f"Test batches: {len(test_loader)}")
+
+
+# In[ ]:
+
+
+import torch.nn as nn
+
+# Create the architecture of the model
+class FlowerCNN(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.feature_extractor = nn.Sequential(
+            nn.LazyConv2d(32, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+            nn.LazyConv2d(64, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),
+        )
+        self.flatten = nn.Flatten()
+        # LazyLinear will infer input features automatically
+        self.fc = nn.Sequential(
+            nn.LazyLinear(256),
+            nn.ReLU(),
+            nn.Linear(256, 17)
+        )
+
+    def forward(self, x):
+        x = self.feature_extractor(x)
+        x = self.flatten(x)
+        x = self.fc(x)
+        return x
+
+
+# In[ ]:
+
+
+import torch
+import torch.optim as optim
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Using device: {device}")
+
+model = FlowerCNN().to(device)
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=1e-3)
+
+print("Model created with Lazy layers.")
+
+
+# In[ ]:
+
+
+def train(model, loader, optimizer, criterion, epoch):
+    # Set the model on the train mode
+    model.train()
+    total_loss = 0.0
+
+    # Move the data to the GPU if found
+    for data, target in loader:
+        data, target = data.to(device), target.to(device)
+
+        optimizer.zero_grad()
+        output = model(data)
+        loss = criterion(output, target)
+
+        loss.backward()
+        optimizer.step()
+        total_loss += loss.item()
+
+    avg_loss = total_loss / len(loader)
+    print(f"Epoch {epoch}: train loss = {avg_loss:.4f}")
+    return avg_loss
+
+
+# In[ ]:
+
+
+def evaluate(model, loader):
+    model.eval()
+    correct, total = 0, 0
+    total_loss = 0.0
+
+    with torch.no_grad():
+        for data, target in loader:
+            data, target = data.to(device), target.to(device)
+            outputs = model(data)
+            loss = criterion(outputs, target)
+            total_loss += loss.item()
+
+            _, preds = torch.max(outputs, 1)
+            total += target.size(0)
+            correct += (preds == target).sum().item()
+
+    avg_loss = total_loss / len(loader)
+    accuracy = 100.0 * correct / total
+    return avg_loss, accuracy
+
+
+# In[ ]:
+
+
+def train_eval(epochs):
+    epochs = epochs
+    train_losses = []
+    val_accuracies = []
+    
+    for epoch in range(1, epochs + 1):
+        train_loss = train(model, train_loader, optimizer, criterion, epoch)
+        val_loss, val_acc = evaluate(model, val_loader)
+    
+        train_losses.append(train_loss)
+        val_accuracies.append(val_acc)
+        print(f"→ Validation loss: {val_loss:.4f}, accuracy: {val_acc:.2f}%")
+Test File/Code
+import nbformat
+import pytest
+from nbconvert.preprocessors import ExecutePreprocessor
+from types import FunctionType
+import inspect
+from torch.utils.data import DataLoader
+import torch
+
+import matplotlib
+matplotlib.use("Agg")  # use non-GUI backend before any plots are made
+
+notebook_file = "final_notebook.ipynb"
+
+@pytest.mark.parametrize("notebook", [notebook_file])
+def test_notebook_exec(notebook):
+    """Test that notebooks execute without errors."""
+    with open(notebook) as f:
+        nb = nbformat.read(f, as_version=4)
+        ep = ExecutePreprocessor(timeout=600, kernel_name="python3")
+        try:
+            assert ep.preprocess(nb) is not None, f"Got empty notebook for {notebook}"
+        except Exception:
+            assert False, f"Failed executing {notebook}"
+
+
+def get_notebook_namespace(notebook_path):
+    """Execute notebook cells and return namespace with all variables."""
+    with open(notebook_path) as f:
+        nb = nbformat.read(f, as_version=4)
+
+    namespace = {}
+    for cell in nb.cells:
+        if cell.cell_type == "code":
+            exec(cell.source, namespace)
+
+    return namespace
+
+# Helper function to assert the variables exist and their type
+def _check_variable_existence_and_type(variable_name, type, type_str, ns):
+    v = "function" if type is FunctionType else "variable"
+    assert variable_name in ns, f"The {variable_name} {v} is missing"
+    assert isinstance(ns[variable_name], type), \
+        f"The {variable_name} {v} is expected to be a {type_str}"
+
+
+ns = get_notebook_namespace(notebook_file)
+
+
+def test_notebook_variables():
+    """Test that notebook variables have expected values and types."""
+    
+    ## Validate the 3 lists with the paths
+    _check_variable_existence_and_type("train_files", list, "list", ns)
+    _check_variable_existence_and_type("val_files", list, "list", ns)
+    _check_variable_existence_and_type("test_files", list, "list", ns)
+    assert len(ns["train_files"]) > 0, "The train_files list is empty"
+    assert len(ns["val_files"]) > 0, "The val_files list is empty"
+    assert len(ns["test_files"]) > 0, "The test_files list is empty"
+
+    ## Validate the `get_class_id` function
+    _check_variable_existence_and_type("get_class_id", FunctionType, "function", ns)
+    sample_path = ns["train_files"][0]
+    cid = ns["get_class_id"](sample_path)
+    assert isinstance(cid, int), "The get_class_id should return an int"
+    assert 1 <= cid <= 17, "The class id should be between 1 and 17"
+
+    # Validate the dataloaders and batch_size
+    assert "batch_size" in ns, "The batch_size variable is missing"
+    _check_variable_existence_and_type("train_loader", DataLoader, "DataLoader", ns)
+    _check_variable_existence_and_type("val_loader", DataLoader, "DataLoader", ns)
+    _check_variable_existence_and_type("test_loader", DataLoader, "DataLoader", ns)
+
+
+def test_data_is_normalized_and_resized():
+    """Check that image tensors are [0,1] and of size 224x224"""
+    _check_variable_existence_and_type("train_loader", DataLoader, "DataLoader", ns)
+    batch = next(iter(ns["train_loader"]))
+    images, _ = batch
+    assert torch.all(images >= 0.0) and torch.all(images <= 1.0), \
+        "The normalized images should have pixel values between 0 and 1"
+    # Shape: [B, C, H, W]
+    _, C, H, W = images.shape
+    assert H == 224 and W == 224, \
+        "The normalized images should have a size of 224 x 224 pixels"
+
+
+def test_model_layers():
+    """Ensure model contains Conv2d layers and the output has the correct shape"""
+
+    assert "model" in ns, "The model variable is missing"
+    model = ns["model"]
+    conv_layers = [m for m in model.modules() if isinstance(m, torch.nn.Conv2d)]
+    assert len(conv_layers) >= 2, "There should be at least 2 conv layers"
+    assert len(conv_layers) <= 3, "There should be at most 3 conv layers"
+
+    # Validate the shape of the output
+    try:
+        batch = next(iter(ns["train_loader"]))
+        images, _ = batch
+        with torch.no_grad():
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model = model.to(device)
+            images = images.to(device)
+            outputs = model(images)
+        assert outputs.shape[1] == 17, "The output should be for 17 classes"
+    except Exception as e:
+        pytest.fail(f"Got the following exception in the feed forward pass - {e}")
+
+
+def test_train_function_signature():
+    """Ensure `train` function has the correct parameter names"""
+
+    _check_variable_existence_and_type("train", FunctionType, "function", ns)
+    sig = inspect.signature(ns["train"])
+    params = set(sig.parameters.keys())
+    expected = {"model", "loader", "optimizer", "criterion", "epoch"}
+    assert params == expected, \
+        f"`train` parameters mismatch: found {params}, expected {expected}"
+
+
+def test_evaluate_function_signature():
+    """Ensure `evaluate` has the correct parameter names"""
+
+    _check_variable_existence_and_type("evaluate", FunctionType, "function", ns)
+    sig = inspect.signature(ns["evaluate"])
+    params = set(sig.parameters.keys())
+    expected = {"model", "loader"}
+    assert params == expected, \
+        f"`evaluate` parameters mismatch: found {params}, expected {expected}"
+
+
+def test_train_eval_function_signature():
+    """Ensure `train_eval` has the correct parameter names"""
+
+    _check_variable_existence_and_type("train_eval", FunctionType, "function", ns)
+    sig = inspect.signature(ns["train_eval"])
+    params = set(sig.parameters.keys())
+    assert "epochs" in params, \
+        "The `train_eval` function should have an `epochs` parameter"
+Command to Run Test File
+python -m pytest test_notebook.py -v
+Additional Files
+Requirements.txt
+
+matplotlib
+Pillow
+scipy
+torch
+torchvision
+
+
+
+
+
+
