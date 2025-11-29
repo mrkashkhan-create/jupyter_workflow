@@ -1,20 +1,13 @@
-Complete the following steps to build an end–to-end pytorch classifier model to classify propertyType from a dataset containing one row per property with features like bedrooms, bathrooms and historical price.
-
-complete feature engineering, creating a dataframe named df_model. The features should consist of the following basic numeric features which are already in the dataset:
-'bedrooms','livingRooms','bathrooms','floorAreaSqM','latitude','longitude'. You should also create three additional features. 
+Complete the following steps to build an end–to-end pytorch classifier model to classify propertyType from a dataset containing one row per property with features like bedrooms, bathrooms and historical price. Initial data loading, exploration and cleaning has been completed.
+Start with feature engineering, creating a dataframe named df_model. The features should consist of the following basic numeric features which are already in the dataset:
+'bedrooms','livingRooms','bathrooms','floorAreaSqM','latitude','longitude'. You should also create three new features. 
 1. rooms which is equal to 'bedrooms' + 'livingRooms'
 2. 'log_price' which is the log of history_price
 3. 'propertyType' is categorical, we need to convert this into numerical labels and create a list called class_names which includes all the unique categories and also a variable named num_classes which counts the number of unique class names.
-
-You should then create a feature set for classification, in a list named feature_cols_cls. It should consist of the following classification features: 
-'rooms','bathrooms','floorAreaSqM','latitude','longitude','log_price'. You can now create the 2d numeric feature array 'X_cls' and the 1d labels array y_cls.
-
-Then create a stratified train-val-test split on X_cls and y_cls, named X_train_scaled,X_val_scaled,X_test_scaled and y_train, y_val, y_test, ensuring to utilise standardScalar for scaling. use a test size of 0.3 and and random state as SEED (which is already a variable)
-
-implement a pytorch dataset class named PropertyDataset and a set of dataloaders (train_loader, val_loader and test_loader) to train with a batch_size of 64.
-
-Then build a MLP classifier named ProperyTypeClassifier using nn.Module. classes equal to num_classes and a forward function. model selection is upto you,but you should ensure feature output is consistant with what is typically expected
-
-Create a function named train that takes model, loader, criterion, optimiser, epoch as parameteers.
-
+Then create a feature set for classification, in a list named feature_cols_cls. It should consist of the following classification features: 
+'rooms','bathrooms','floorAreaSqM','latitude','longitude','log_price'. Then create the 2d numeric feature array 'X_cls' and the 1d labels array y_cls.
+Now prepare the data for training. Create a stratified train-val-test split on X_cls and y_cls, named X_train_scaled,X_val_scaled,X_test_scaled and y_train, y_val, y_test, ensuring to utilise standardScalar for scaling. use a test size of 0.3 and and random state equal to the SEED variable (which is already set in the notebook)
+Implement a pytorch dataset class named PropertyDataset and a set of dataloaders (train_loader, val_loader and test_loader) to train with a batch_size of 64.
+Then build a MLP classifier named PropertyTypeClassifier using nn.Module. the final layer of the network should output logits equal to the num_classes variable calculated previously. Also implement forward function. Model selection is upto you,but you should ensure feature output is consistent with what is typically expected. use the PropertyTypeClassifier to create an instance assigned to a variable named model.
+Then create a function named train that takes model, loader, criterion, optimiser, epoch as parameters.
 create an evaluation function named evaluate with arguments model and loader. Also a function named train_eval(epochs) that should return train_losses, val_losses, val_accuracies
