@@ -1,9 +1,9 @@
-Build an end-to-end pytorch regression model that predicts log_price (named y in notebook) from X. The features have been decided ('feature_cols') and the target should be 'log_price'. The dataframe is named 'df_model'. Random seed has been set.
-Complete the following tasks to achieve this, ensuring you stick to the detailed requirements and naming conventions of functions and variables: 
-1. create a scaled train/validate/test split that uses scaling, with StandardScalar. The resulting objects should be "X_train_scaled", "X_val_scaled", "X_test_scaled", "y_train", "y_val", "y_test" and we should use a 70-15-15 split strategy. The output bariables should be X_train_scaled, X_val_scaled, X_test_scaled, y_train, y_val, y_test
-2. create a class named HousePriceDataset(Dataset) and use it with Dataloaders (rain_loader, val_loader, test_loader) and a variable BATCH_SIZE=64 to create loaders that allow batch loading
-3. Create a class named PricePredictorNN using torch.nn to specify the model and ensure that it implemets a forward funtion, the output should be 2D with one column
-4. Create training and evaluation function that implements MAE and MSE losses, and uses the ADAM optimiser. ensure the functions have the following function names and arguments:
-  train_epoch(model,dataloader,optimiser,mse_loss_fn,mae_loss_fn,device)
-  eval_model(model,dataloader,mse_loss_fn,mae_loss_fn,device)
+Build an end-to-end pytorch regression model that predicts log_price (named y in notebook) from X. The features have been decided ('feature_cols') and the target should be 'log_price' (y). The dataframe is named 'df_model'. Random seed has been set.
+Complete the following tasks to achieve this: 
+1. create a scaled train/validate/test split that uses scaling, with StandardScalar. The resulting objects should be "X_train_scaled", "X_val_scaled", "X_test_scaled", "y_train", "y_val", "y_test" and should use a 70-15-15 split strategy. The output variables should be X_train_scaled, X_val_scaled, X_test_scaled, y_train, y_val, y_test
+2. create a class named HousePriceDataset(Dataset) and use it with DataLoaders (train_loader, val_loader, test_loader) and a variable BATCH_SIZE=64 to create loaders that support batch loading
+3. Create a class named PricePredictorNN using torch.nn to specify the model and ensure that it implements a forward function, the output should be 2D with one column
+4. Create training and evaluation functions that implements MAE and MSE losses, and uses the ADAM optimiser. ensure the functions have the following function names and arguments:
+ train_epoch(model,dataloader,optimiser,mse_loss_fn,mae_loss_fn,device)
+ eval_model(model,dataloader,mse_loss_fn,mae_loss_fn,device)
 5. Create a training loop that trains for NUM_EPOCHS = 10
